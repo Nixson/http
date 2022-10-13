@@ -9,11 +9,11 @@ import (
 )
 
 type User struct {
-	Id       uint64 `gorm:"primarykey"`
-	Access   uint
-	Login    string `gorm:"index"`
-	Username string
-	Password string
+	Id       uint64 `gorm:"primarykey" json:"id"`
+	Access   uint   `json:"access"`
+	Login    string `gorm:"index" json:"login"`
+	Username string `json:"username"`
+	Password string `json:"-"`
 }
 
 func (u User) TableName() string {

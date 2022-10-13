@@ -2,7 +2,7 @@ package session
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/Nixson/logger"
 	"os"
 	"sync"
 	"time"
@@ -10,8 +10,8 @@ import (
 
 type Session struct {
 	User
-	Hash  string
-	Dtime int64
+	Hash  string `json:"hash"`
+	Dtime int64  `json:"dtime"`
 }
 
 func (s *Session) Set(user User) {
@@ -30,7 +30,7 @@ const sessionPath = "./bin/session"
 
 func init() {
 	nowTime := time.Now().Unix()
-	log.Println("init Session")
+	logger.Println("init Session")
 	files, _ := os.ReadDir(sessionPath)
 	for _, f := range files {
 		info, _ := f.Info()

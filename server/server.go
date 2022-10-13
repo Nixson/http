@@ -44,6 +44,7 @@ func Run() {
 var srv *http.Server
 
 func InitServer() {
+	logger.Println("init Server")
 	env := environment.GetEnv()
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(handle))
