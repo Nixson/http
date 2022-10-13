@@ -7,7 +7,6 @@ require (
 	github.com/Nixson/db v0.0.5
 	github.com/Nixson/environment v0.0.17
 	github.com/Nixson/logger v0.0.1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.3.0
 	gorm.io/gorm v1.23.10
 )
