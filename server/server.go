@@ -47,6 +47,9 @@ func InitServer() {
 	env := environment.GetEnv()
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(handle))
+	mux.Handle("/static", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		http.ServeFile(writer, request, env.GetString("template.url")+request.URL.Path)
+	}))
 	srv = &http.Server{
 		Addr:           env.GetString("server.port"),
 		Handler:        mux,
@@ -56,6 +59,11 @@ func InitServer() {
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" || r.URL.Path == "" || r.URL.Path == "/index.html" {
+		env := environment.GetEnv()
+
+		http.ServeFile(w, r, env.GetString("template.url")+"/"+env.GetString("template.main"))
+	}
 	ctx := Context{
 		Request:  r,
 		Response: w,
