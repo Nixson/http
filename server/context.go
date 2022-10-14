@@ -247,6 +247,24 @@ func (c *Context) ParseUrl() {
 	}
 }
 
+func (c *Context) CheckStatic(env *environment.Env, path string) (string, bool) {
+	if path == "" || path == "/" || path == "/index.html" {
+		return env.GetString("template.main"), true
+	}
+	if path[0:1] == "/" {
+		path = path[1:]
+	}
+	subs := strings.Split(path, "/")
+	if subs[0] == "css" || subs[0] == "js" {
+		return "/" + path, true
+	}
+	if len(subs) > 1 && (subs[1] == "css" || subs[1] == "js") {
+		path = path[1:]
+		return "/" + path, true
+	}
+	return "", false
+}
+
 type TokenException struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`

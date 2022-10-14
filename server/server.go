@@ -68,11 +68,7 @@ func InitServer() {
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" || r.URL.Path == "" || r.URL.Path == "/index.html" {
-		env := environment.GetEnv()
-
-		http.ServeFile(w, r, env.GetString("template.url")+"/"+env.GetString("template.main"))
-	}
+	env := environment.GetEnv()
 	ctx := Context{
 		Request:  r,
 		Response: w,
@@ -82,6 +78,11 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		Method:   r.Method,
 		Data:     r.Body,
 		Query:    r.URL.Query(),
+	}
+	static, ok := ctx.CheckStatic(env, r.URL.Path)
+	if ok {
+		http.ServeFile(w, r, env.GetString("template.url")+static)
+		return
 	}
 	ctx.ParseUrl()
 	if ctx.IsGranted() {
