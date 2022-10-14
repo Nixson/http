@@ -7,6 +7,7 @@ import (
 	"github.com/Nixson/logger"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func RunWithSignal() {
@@ -49,7 +50,14 @@ func InitServer() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(handle))
 	mux.Handle("/static", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		http.ServeFile(writer, request, env.GetString("template.url")+request.URL.Path)
+		var path = request.URL.Path
+		var sub = strings.Split(path, "/")
+		logger.Println(sub)
+		if sub[1] != "css" || sub[1] != "js" {
+			path = strings.Join(sub[2:], "/")
+		}
+		logger.Println(path)
+		http.ServeFile(writer, request, env.GetString("template.url")+path)
 	}))
 	srv = &http.Server{
 		Addr:           env.GetString("server.port"),
