@@ -14,6 +14,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -249,20 +250,21 @@ func (c *Context) ParseUrl() {
 
 func (c *Context) CheckStatic(env *environment.Env, path string) (string, bool) {
 	if path == "" || path == "/" || path == "/index.html" {
-		return env.GetString("template.main"), true
+		return "/" + env.GetString("template.main"), true
 	}
 	if path[0:1] == "/" {
 		path = path[1:]
 	}
 	subs := strings.Split(path, "/")
-	if subs[0] == "css" || subs[0] == "js" {
+	if subs[0] == "api" {
+		return "", false
+	}
+	if _, err := strconv.Atoi(subs[0]); err == nil {
+		subs = subs[1:]
+		path = strings.Join(subs, "/")
 		return "/" + path, true
 	}
-	if len(subs) > 1 && (subs[1] == "css" || subs[1] == "js") {
-		path = path[1:]
-		return "/" + path, true
-	}
-	return "", false
+	return "/" + path, true
 }
 
 type TokenException struct {
