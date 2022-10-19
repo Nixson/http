@@ -117,14 +117,14 @@ func (c *Context) IsGranted() bool {
 }
 
 type Info struct {
-	Index   int
-	Method  string
-	Access  string
-	Path    string
-	Context *ContextInterface
-	Params  []string
-	Reg     *regexp.Regexp
-	IsReg   bool
+	Index      int
+	Method     string
+	Access     string
+	Path       string
+	Controller *ContextInterface
+	Params     []string
+	Reg        *regexp.Regexp
+	IsReg      bool
 }
 
 var contextMap = make(map[string]Info)
@@ -163,15 +163,18 @@ func InitController(name string, controller *ContextInterface) {
 			aType = "DELETE"
 		}
 		inf := Info{
-			Index:   _method.Index,
-			Method:  aType,
-			Access:  access,
-			Context: controller,
-			IsReg:   false,
+			Index:      _method.Index,
+			Method:     aType,
+			Access:     access,
+			Controller: controller,
+			IsReg:      false,
 		}
 		path, hasPath := annotationMapEl.Parameters["path"]
 		if !hasPath {
-			path = _method.Name
+			path, hasPath = annotationMapEl.Parameters["url"]
+			if !hasPath {
+				path = _method.Name
+			}
 		}
 		inf.Path = path
 		if strings.Contains(path, "{") {
@@ -202,11 +205,11 @@ var isEnv = regexp.MustCompile(`\{(.*?)\}`)
 func (c *Context) Call() {
 	in := make([]reflect.Value, 0)
 	info := c.Handle
-	var hdl ContextInterface
-	hdl = *info.Context
+	hdl := *info.Controller
 	hdl.SetContext(c)
 	reflect.ValueOf(hdl).Method(info.Index).Call(in)
 }
+
 func (c *Context) Write(iface interface{}) {
 	marshal, _ := json.Marshal(iface)
 	_, err := c.Response.Write(marshal)
@@ -220,6 +223,12 @@ func (c *Context) Error(status int, iface interface{}) {
 }
 
 func (c *Context) ParseUrl() {
+	isApi := strings.Split(c.Path, "/")
+	if isApi[1] == "api" {
+		isApi = isApi[2:]
+		c.Path = "/" + strings.Join(isApi, "/")
+	}
+
 	lst := strings.Split(c.Path, "/")
 	serviceName := environment.GetEnv().Get("service.name")
 	if lst[1] == serviceName {
