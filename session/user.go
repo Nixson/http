@@ -61,7 +61,7 @@ func GetUserById(id uint64) User {
 	sql.First(&usr, User{Id: id})
 	return usr
 }
-func GetUsers(cid uint64) []User {
+func GetUsers() []User {
 	var usr []User
 	sql.Find(&usr)
 	return usr
