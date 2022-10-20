@@ -9,8 +9,12 @@ import (
 	"github.com/Nixson/logger"
 	"github.com/google/uuid"
 	"io"
+	"log"
+	"mime"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"sort"
@@ -295,4 +299,65 @@ func (t *TokenException) Marshal() string {
 		return ""
 	}
 	return string(marshal)
+}
+
+func (c *Context) UploadFile(postName string) (filename string, error bool) {
+	env := environment.GetEnv()
+	maxUploadSize, _ := strconv.ParseInt(env.Get("server.maxUpload"), 10, 64)
+	c.Request.Body = http.MaxBytesReader(c.Response, c.Request.Body, maxUploadSize)
+	if err := c.Request.ParseMultipartForm(maxUploadSize); err != nil {
+		c.Error(http.StatusBadRequest, "FILE_TOO_BIG")
+		error = true
+		return
+	}
+
+	// parse and validate file and post parameters
+	file, _, err := c.Request.FormFile(postName)
+	if err != nil {
+		filename = ""
+		error = false
+		return
+	}
+	defer file.Close()
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		c.Error(http.StatusBadRequest, "INVALID_FILE")
+		error = true
+		return
+	}
+
+	// check file type, detectcontenttype only needs the first 512 bytes
+	detectedFileType := http.DetectContentType(fileBytes)
+	switch detectedFileType {
+	case "image/jpeg", "image/jpg", "application/pdf":
+	case "image/gif", "image/png":
+		break
+	default:
+		c.Error(http.StatusBadRequest, "INVALID_FILE_TYPE")
+		error = true
+		return
+	}
+	fileName := uuid.New().String()
+	fileEndings, err := mime.ExtensionsByType(detectedFileType)
+	if err != nil {
+		c.Error(http.StatusInternalServerError, "CANT_READ_FILE_TYPE")
+		return
+	}
+	newPath := filepath.Join(env.Get("template.url"), "get", fileName+fileEndings[0])
+	log.Printf("FileType: %s, File: %s\n", detectedFileType, newPath)
+
+	// write file
+	newFile, err := os.Create(newPath)
+	if err != nil {
+		c.Error(http.StatusInternalServerError, "CANT_WRITE_FILE")
+		return
+	}
+	defer newFile.Close() // idempotent, okay to call twice
+	if _, err := newFile.Write(fileBytes); err != nil || newFile.Close() != nil {
+		c.Error(http.StatusInternalServerError, "CANT_WRITE_FILE")
+		return
+	}
+	filename = fileName + fileEndings[0]
+	error = false
+	return
 }
