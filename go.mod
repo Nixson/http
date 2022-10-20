@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Nixson/annotation v0.0.17
 	github.com/Nixson/db v0.0.5
-	github.com/Nixson/environment v0.0.17
+	github.com/Nixson/environment v0.0.18
 	github.com/Nixson/logger v0.0.1
 	github.com/google/uuid v1.3.0
 	gorm.io/gorm v1.23.10

@@ -105,6 +105,14 @@ func (c *Context) IsGranted() bool {
 			c.Session = sess
 			return true
 		}
+		if inf.Access == "all" {
+			c.Session = &session.Session{
+				User:  session.User{Access: 1000},
+				Hash:  uuid.New().String(),
+				Dtime: time.Now().Unix() + session.Dtime,
+			}
+			return true
+		}
 		c.Error(http.StatusUnauthorized, "failed header Authorization")
 		return false
 	}
