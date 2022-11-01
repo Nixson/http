@@ -8,6 +8,7 @@ require (
 	github.com/Nixson/environment v0.0.18
 	github.com/Nixson/logger v0.0.1
 	github.com/google/uuid v1.3.0
+	github.com/jinzhu/copier v0.3.5
 	gorm.io/gorm v1.23.10
 )
 
