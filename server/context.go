@@ -8,7 +8,6 @@ import (
 	"github.com/Nixson/http/session"
 	"github.com/Nixson/logger"
 	"github.com/google/uuid"
-	"github.com/jinzhu/copier"
 	"io"
 	"log"
 	"mime"
@@ -217,17 +216,12 @@ var isEnv = regexp.MustCompile(`\{(.*?)\}`)
 
 func (c *Context) Call() {
 	in := make([]reflect.Value, 0)
-	var inf Info
-	err := copier.Copy(&inf, c.Handle)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	hdl := inf.Controller
-	rs := reflect.ValueOf(&hdl).Elem()
-	fmt.Println(rs)
-	//	hdl.SetContext(c)
-	reflect.ValueOf(hdl).Method(inf.Index).Call(in)
+	inf := *c.Handle
+	hdl := reflect.New(reflect.TypeOf(inf.Controller).Elem())
+	rs := hdl.Elem().FieldByName("Context")
+	realContext := *c
+	rs.Set(reflect.ValueOf(realContext))
+	hdl.Method(inf.Index).Call(in)
 }
 
 func (c *Context) Write(iface interface{}) {
