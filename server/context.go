@@ -134,7 +134,7 @@ type Info struct {
 	Method     string
 	Access     string
 	Path       string
-	Controller *ContextInterface
+	Controller interface{}
 	Params     []string
 	Reg        *regexp.Regexp
 	IsReg      bool
@@ -143,7 +143,7 @@ type Info struct {
 var contextMap = make(map[string]Info)
 var contextList = make([]Info, 0)
 
-func InitController(name string, controller *ContextInterface) {
+func InitController(name string, controller interface{}) {
 	annotationList := annotation.Get("controller")
 	annotationMap := make(map[string]annotation.Element)
 	for _, annotationMapEl := range annotationList {
@@ -153,7 +153,7 @@ func InitController(name string, controller *ContextInterface) {
 			}
 		}
 	}
-	_struct := reflect.TypeOf(*controller)
+	_struct := reflect.TypeOf(controller)
 	for index := 0; index < _struct.NumMethod(); index++ {
 		_method := _struct.Method(index)
 		annotationMapEl, ok := annotationMap[_method.Name]
@@ -223,8 +223,10 @@ func (c *Context) Call() {
 		fmt.Println(err)
 		return
 	}
-	hdl := *inf.Controller
-	hdl.SetContext(c)
+	hdl := inf.Controller
+	rs := reflect.ValueOf(&hdl).Elem()
+	fmt.Println(rs)
+	//	hdl.SetContext(c)
 	reflect.ValueOf(hdl).Method(inf.Index).Call(in)
 }
 
