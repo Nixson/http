@@ -44,6 +44,7 @@ func UserRm(id uint64) {
 }
 func UserCreate(usr User) {
 	usr.Password = HashPassword(usr.Password)
+	logger.Println(usr)
 	sql().Create(&usr)
 }
 func UserModify(usr User) {
