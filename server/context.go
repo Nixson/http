@@ -282,6 +282,9 @@ func (c *Context) CheckStatic(env *environment.Env, path string) (string, bool) 
 	if subs[0] == "api" {
 		return "", false
 	}
+	if subs[0] == "qr" {
+		return "/auth.html", true
+	}
 	if _, err := strconv.Atoi(subs[0]); err == nil {
 		subs = subs[1:]
 		path = strings.Join(subs, "/")
