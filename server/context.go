@@ -273,6 +273,9 @@ func (c *Context) ParseUrl() {
 
 func (c *Context) CheckStatic(env *environment.Env, path string) (string, bool) {
 	if path == "" || path == "/" || path == "/index.html" {
+		return "/" + env.GetString("template.index"), true
+	}
+	if path == "/orm" {
 		return "/" + env.GetString("template.main"), true
 	}
 	if path[0:1] == "/" {
