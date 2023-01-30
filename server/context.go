@@ -241,6 +241,9 @@ func (c *Context) ParseUrl() {
 	if isApi[1] == "api" {
 		isApi = isApi[2:]
 		c.Path = "/" + strings.Join(isApi, "/")
+	} else if isApi[1] == "orm" {
+		isApi = isApi[2:]
+		c.Path = "/" + strings.Join(isApi, "/")
 	}
 
 	lst := strings.Split(c.Path, "/")
@@ -280,6 +283,9 @@ func (c *Context) CheckStatic(env *environment.Env, path string) (string, bool) 
 	}
 	if path[0:1] == "/" {
 		path = path[1:]
+	}
+	if path[0:4] == "orm/" {
+		path = path[5:]
 	}
 	subs := strings.Split(path, "/")
 	if subs[0] == "api" {
