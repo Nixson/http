@@ -19,6 +19,7 @@ func (s *Session) Set(user User) {
 	s.Login = user.Login
 	s.Username = user.Username
 	s.Access = user.Access
+	s.Attribute = user.Attribute
 	CreateFullSession(s, false)
 }
 
