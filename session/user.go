@@ -9,11 +9,12 @@ import (
 )
 
 type User struct {
-	Id       uint64 `gorm:"primarykey" json:"id"`
-	Access   uint   `json:"access"`
-	Login    string `gorm:"index" json:"login"`
-	Username string `json:"username"`
-	Password string `json:"-"`
+	Id        uint64 `gorm:"primarykey" json:"id"`
+	Access    uint   `json:"access"`
+	Login     string `gorm:"index:usr_login" json:"login"`
+	Username  string `json:"username"`
+	Password  string `json:"-"`
+	Attribute string `gorm:"index:usr_attr" json:"attribute"`
 }
 
 func (u User) TableName() string {
@@ -76,6 +77,11 @@ func GetUsers() []User {
 func GetUserLogin(login string) User {
 	var usr User
 	sql().First(&usr, User{Login: login})
+	return usr
+}
+func GetUserAttribute(attr string) User {
+	var usr User
+	sql().First(&usr, User{Attribute: attr})
 	return usr
 }
 func GetUserByLoginAndPassword(login string, pass string) User {
